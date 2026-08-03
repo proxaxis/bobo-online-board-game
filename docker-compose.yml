@@ -1,0 +1,14 @@
+services:
+  app:
+    image: node:24.12.0
+    container_name: bobo_online_board_game_app
+    user: node
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./app:/app
+    ports:
+      - "8003:8003"
+    command: sleep infinity
