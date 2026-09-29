@@ -1,0 +1,47 @@
+@use 'sass:color';
+@use 'sass:map';
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&display=swap'); // 'Noto Sans JP'
+
+// サイズ定数
+$size: (
+  app-header-height: 63px,
+  content-max-width: 1200px,
+  content-min-width: 320px,
+  breakpoint: 768px,
+  border-radius-sm: 4px,
+  border-radius-md: 8px,
+  border-radius-lg: 32px
+);
+
+@mixin spread-size-vars() {
+  @each $key, $value in $size {
+    --#{$key}: #{$value};
+  }
+}
+
+// カラーコード定数
+$base-color-lt-bg: #1b1b1b;
+$base-color-lt-text: #ffffff;
+$colors: (
+  bg-0: color.scale($base-color-lt-bg, $lightness: 5%),
+  bg-1: $base-color-lt-bg,
+  bg-2: color.scale($base-color-lt-bg, $lightness: -30%),
+  text-0: color.scale($base-color-lt-text, $lightness: 60%),
+  text-1: $base-color-lt-text,
+  border: #ffffff4d,
+  shadow: #ffffff1a,
+  accent: #ff3333
+);
+
+@mixin spread-color-vars() {
+  @each $key, $value in $colors {
+    --#{$key}: #{$value};
+  }
+}
+
+// 共通関数
+@mixin wide($bp: map-get($size, breakpoint)) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
