@@ -1,5 +1,39 @@
 import Peer from 'peerjs';
 
+const defaultIceServers = [{ urls: 'stun:stun.cloudflare.com:3478' }];
+
+async function getIceServers() {
+  const configuredServers = import.meta.env.VITE_ICE_SERVERS;
+  if (configuredServers) {
+    try {
+      const parsedServers = JSON.parse(configuredServers);
+      if (Array.isArray(parsedServers) && parsedServers.length > 0) return parsedServers;
+    } catch (error) {
+      console.warn('VITE_ICE_SERVERS must be valid JSON:', error);
+    }
+  }
+
+  const turnUrl = import.meta.env.VITE_TURN_URL;
+  const turnUsername = import.meta.env.VITE_TURN_USERNAME;
+  const turnCredential = import.meta.env.VITE_TURN_CREDENTIAL;
+
+  if (turnUrl && turnUsername && turnCredential) {
+    return [...defaultIceServers, { urls: turnUrl, username: turnUsername, credential: turnCredential }];
+  }
+
+  try {
+    const response = await fetch('/api/turn-ice-servers');
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data.iceServers) && data.iceServers.length > 0) return data.iceServers;
+    }
+  } catch (error) {
+    console.warn('Unable to load Cloudflare TURN credentials:', error);
+  }
+
+  return defaultIceServers;
+}
+
 /**
  * @typedef {import('@/lib/TelecomClient.d.ts').PeerJsOptions} PeerJsOptions
  * @typedef {import('@/lib/TelecomClient.d.ts').PeerJsDataConnection} PeerJsDataConnection
@@ -31,7 +65,7 @@ export class TelecomClient extends EventTarget {
      * 任意に指定された PeerJS オプション
      * @type {PeerJsOptions}
      */
-    this.myPeerOptions = options ?? {};
+    this.myPeerOptions = { ...options };
 
     /**
      * 自身の PeerJS インスタンス
@@ -78,9 +112,14 @@ export class TelecomClient extends EventTarget {
    * イベントバインドなどを含めて、シグナリングサーバーへの接続を初期化し、自身の ID 取得を待機
    * @returns {Promise<string>} 割り当てられた自身の Peer ID
    */
-  init() {
+  async init() {
+    const peerOptions = {
+      ...this.myPeerOptions,
+      config: this.myPeerOptions.config ?? { iceServers: await getIceServers() },
+    };
+
     return new Promise((resolve, reject) => {
-      this.myPeerInstance = this.id ? new Peer(this.id, this.myPeerOptions) : new Peer(this.myPeerOptions);
+      this.myPeerInstance = this.id ? new Peer(this.id, peerOptions) : new Peer(peerOptions);
 
       this.myPeerInstance.on('open', (id) => {
         this.id = id;
