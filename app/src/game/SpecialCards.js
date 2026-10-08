@@ -4,6 +4,8 @@
  * @typedef {import('@/game/SpecialCards.d.ts').PlaySpOptions} PlaySpOptions
  */
 
+import { generateId } from '@/lib/uuid.js';
+
 export class SpecialCards {
   /**
    * SPカードの全定義（マスターデータ）
@@ -35,7 +37,7 @@ export class SpecialCards {
     const drawn = [];
     for (let i = 0; i < count; i++) {
       const sp = this.DEFINITIONS[Math.floor(Math.random() * this.DEFINITIONS.length)];
-      drawn.push({ ...sp });
+      drawn.push({ ...sp, id: generateId('sp') });
     }
     return drawn;
   }
@@ -54,7 +56,7 @@ export class SpecialCards {
         if (options.targetValue) {
           const idx = deck.indexOf(options.targetValue);
           if (idx !== -1) {
-            player.hand.push({ value: deck.splice(idx, 1)[0], visible: true });
+            player.hand.push({ id: generateId('c'), value: deck.splice(idx, 1)[0], visible: true });
           }
         }
         break;
@@ -136,7 +138,7 @@ export class SpecialCards {
     }
 
     const idx = deck.indexOf(bestValue);
-    player.hand.push({ value: deck.splice(idx, 1)[0], visible: true });
+    player.hand.push({ id: generateId('c'), value: deck.splice(idx, 1)[0], visible: true });
   }
 
   /**

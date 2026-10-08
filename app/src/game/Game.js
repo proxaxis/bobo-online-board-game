@@ -1,5 +1,6 @@
 // Game.js
 import { SpecialCards } from './SpecialCards.js';
+import { generateId } from '@/lib/uuid.js';
 
 /**
  * @typedef {import('@/game/Game.d.ts').Player} Player
@@ -35,6 +36,7 @@ export class Game {
 
   startRound() {
     if (this.status === 'game-over') throw new Error('Game is already over.');
+    if (this.status === 'round-end') this.round++;
 
     this.deck = Array.from({ length: 11 }, (_, i) => i + 1);
     this.player1.hand = [];
@@ -129,8 +131,6 @@ export class Game {
 
     if (this.player1.lives <= 0 || this.player2.lives <= 0) {
       this.status = 'game-over';
-    } else {
-      this.round++;
     }
 
     return { winnerId, score1, score2, p1Lives: this.player1.lives, p2Lives: this.player2.lives };
@@ -168,7 +168,7 @@ export class Game {
     if (this.deck.length === 0) return null;
     const randomIndex = Math.floor(Math.random() * this.deck.length);
     const value = this.deck.splice(randomIndex, 1)[0];
-    const card = { value, visible };
+    const card = { id: generateId('c'), value, visible };
     player.hand.push(card);
     return card;
   }

@@ -1,4 +1,5 @@
 import Peer from 'peerjs';
+import { generateId } from '@/lib/uuid.js';
 
 const defaultIceServers = [{ urls: 'stun:stun.cloudflare.com:3478' }];
 
@@ -51,7 +52,7 @@ async function getIceServers() {
  * @extends {EventTarget}
  */
 export class TelecomClient extends EventTarget {
-  /** @param {PeerJsOptions & { id?: string }} [params={}] - PeerJS に渡すオプション群と、自身に指定する任意の Peer ID（省略時は自動生成）*/
+  /** @param {PeerJsOptions & { id?: string }} [params={}] - PeerJS に渡すオプション群と、自身に指定する任意の Peer ID（省略時はBase58形式で自動生成）*/
   constructor({ id: customPeerId, ...options } = {}) {
     super();
 
@@ -119,7 +120,7 @@ export class TelecomClient extends EventTarget {
     };
 
     return new Promise((resolve, reject) => {
-      this.myPeerInstance = this.id ? new Peer(this.id, peerOptions) : new Peer(peerOptions);
+      this.myPeerInstance = new Peer(this.id || generateId(), peerOptions);
 
       this.myPeerInstance.on('open', (id) => {
         this.id = id;

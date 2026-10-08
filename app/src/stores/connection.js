@@ -1,6 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import Peer from 'peerjs';
+import { generateId } from '@/lib/uuid.js';
 
 export const useConnectionStore = defineStore('connection', () => {
   const id = ref(null);
@@ -84,8 +85,8 @@ export const useConnectionStore = defineStore('connection', () => {
       const info = JSON.parse(localStorage.getItem('lastPeerInfo'));
       rwPeer = new Peer(info.id);
     } else {
-      // なければ新しい Peer を作成
-      rwPeer = new Peer();
+      // なければBase58形式の Peer ID で新しい Peer を作成
+      rwPeer = new Peer(generateId());
     }
 
     // Open イベント

@@ -1,6 +1,7 @@
 export type SPCardKind = 'consume' | 'field';
 
 export interface SPCard {
+  id: string;
   key: string;
   name: string;
   kind: SPCardKind;
@@ -9,6 +10,7 @@ export interface SPCard {
 }
 
 export interface Card {
+  id: string;
   value: number;
   visible: boolean; // 相手に見えているかどうか
 }
